@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "ColorInteraction";
+}
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<div id="color" class="col-xs-6" style="height: 50vh;"></div>  
+                      
+<table id="actors">
+    <tr>
+        <th>Machine</th>
+        <th>Color</th>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    @{DateTime now = DateTime.Now;}
+
+    setInterval(function () {
+        $.ajax({
+            url: "@Url.HttpRouteUrl("DefaultApi", new
+                  {
+                      controller = "Color",
+                      action = "CurrentColor",
+                      lastUpdate = now
+                  })",
+            success: function (result) {
+                $("#color").css("background-color", `rgb(${result.r}, ${result.g}, ${result.b})`);
+            }
+        });
+        $.ajax({
+            url: "@Url.HttpRouteUrl("DefaultApi", new
+                  {
+                      controller = "Color",
+                      action = "Actors",
+                      lastUpdate = now
+                  })",
+            success: function (response) {
+                $("#actors").children().empty();
+                $("#actors>tbody").append(`<tr>
+                                               <th>Machine</th>
+                                               <th>Color</th>
+                                           </tr>`);
+                for (var i = 0; i < response.length; i++) {
+                    $("#actors>tbody").append(`<tr>
+                                  <td>${response[i].machineName}</td>
+                                  <td style="background-color: rgb(${response[i].color.r}, ${response[i].color.g}, ${response[i].color.b}); width: 50vh;"></td>
+                             </tr>`);
+                }
+            }
+        });
+    }, 3000);
+</script>
